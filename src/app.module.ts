@@ -1,14 +1,19 @@
 import { Module } from '@nestjs/common';
-import { AppService } from './app.service';
 import { AuthModule } from './main/auth/auth.module';
 import { UserModule } from './main/user/user.module';
 import { LikeModule } from './main/like/like.module';
 import { MessageModule } from './main/message/message.module';
 import { FirebaseModule } from './main/firebase/firebase.module';
+import {ConfigModule} from '@nestJs/config';
 
 @Module({
-  imports: [AuthModule, UserModule, LikeModule, MessageModule, FirebaseModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    AuthModule, UserModule, LikeModule, MessageModule, FirebaseModule
+  ],
   controllers: [],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule {}

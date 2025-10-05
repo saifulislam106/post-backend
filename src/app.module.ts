@@ -6,12 +6,13 @@ import { MessageModule } from './main/message/message.module';
 import { FirebaseModule } from './main/firebase/firebase.module';
 import {ConfigModule} from '@nestjs/config';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    AuthModule, UserModule, LikeModule, MessageModule, FirebaseModule
+    AuthModule, UserModule, LikeModule, MessageModule, FirebaseModule, 
   ],
   controllers: [],
   providers: [],

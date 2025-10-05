@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String?
+  email     String   @unique
+  password  String
+  phone     Int   @unique
+  gender    Gender?
+  role      Role     @default(USER)
+  latitude  Float?
+  longitude Float?
+  likesFrom Like[]    @relation("FromUser")
+  likesTo   Like[]    @relation("ToUser")
+  sentMessages     Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageReceiver")
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id         String   @id @default(uuid())
+  fromUserId String
+  fromUser   User     @relation("FromUser", fields: [fromUserId], references: [id])
+  toUserId   String
+  toUser     User     @relation("ToUser", fields: [toUserId], references: [id])
+  createdAt  DateTime @default(now())
+  matched    Boolean  @default(false)
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id])
+  text       String
+  createdAt  DateTime @default(now())
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPERADMIN
+}

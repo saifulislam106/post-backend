@@ -5,17 +5,19 @@ import { ConfigService } from '@nestjs/config';
 import { credential } from 'firebase-admin';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/filter/http-exception.filter';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') ?? 3000;
 
-  // app.enableCors({
-  //   origin: '*',
-  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  //   credentials: true,
-  // });
+  app.enableCors({
+    // origin: '*',
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -24,7 +26,7 @@ async function bootstrap() {
     })
   );
 
-  
+   app.useWebSocketAdapter(new IoAdapter(app));
 
   app.useGlobalFilters(new AllExceptionsFilter());
 

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Two-User WebSocket Chat Test</title>
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .chat-box { border: 1px solid #ccc; padding: 10px; width: 45%; float: left; margin-right: 5%; }
+    .chat-log { height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 5px; background: #f9f9f9; margin-bottom: 10px; }
+    .message-input { width: calc(100% - 60px); }
+    button { padding: 5px 10px; }
+  </style>
+</head>
+<body>
+
+<h1>Two-User Chat Simulation</h1>
+
+<div class="chat-box">
+  <h3>User 1</h3>
+  <div id="log1" class="chat-log"></div>
+  <input id="msg1" class="message-input" placeholder="Type message...">
+  <button onclick="sendMessage(user1)">Send</button>
+</div>
+
+<div class="chat-box">
+  <h3>User 2</h3>
+  <div id="log2" class="chat-log"></div>
+  <input id="msg2" class="message-input" placeholder="Type message...">
+  <button onclick="sendMessage(user2)">Send</button>
+</div>
+
+<script>
+  const serverUrl = "http://localhost:4000"; // তোমার সার্ভারের URL
+  const user1 = { id: "user1", socket: null, logId: "log1", inputId: "msg1" };
+  const user2 = { id: "user2", socket: null, logId: "log2", inputId: "msg2" };
+
+  function connectUser(user) {
+    const socket = io(serverUrl, {
+      query: { userId: user.id }
+    });
+
+    socket.on("connect", () => {
+      log(user.logId, `✅ Connected as ${user.id} (Socket ID: ${socket.id})`);
+    });
+
+    socket.on("message", (msg) => {
+      log(user.logId, `💬 ${msg.senderId} → ${msg.receiverId}: ${msg.text}`);
+    });
+
+    socket.on("disconnect", () => {
+      log(user.logId, `❌ Disconnected`);
+    });
+
+    socket.on("connect_error", (err) => {
+      log(user.logId, `⚠️ Connection error: ${err.message}`);
+    });
+
+    user.socket = socket;
+  }
+
+  function sendMessage(user) {
+    const input = document.getElementById(user.inputId);
+    const text = input.value.trim();
+    if (!text) return;
+
+    const msg = {
+      senderId: user.id,
+      receiverId: (user.id === "user1") ? "user2" : "user1",
+      text
+    };
+
+    user.socket.emit("message", msg);
+    log(user.logId, `📤 You → ${msg.receiverId}: ${msg.text}`);
+    input.value = "";
+  }
+
+  function log(logId, message) {
+    const logDiv = document.getElementById(logId);
+    logDiv.innerHTML += message + "<br>";
+    logDiv.scrollTop = logDiv.scrollHeight;
+  }
+
+  // Connect both users
+  connectUser(user1);
+  connectUser(user2);
+</script>
+
+</body>
+</html>

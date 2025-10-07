@@ -3,7 +3,7 @@ import { Server } from 'socket.io';
 import { MessageService } from '../message.service';
 import { CreateMessageDto } from '../dto/create-message.dto';
 
-@WebSocketGateway(4000,{ cors: {
+@WebSocketGateway(3000,{ cors: {
   origin:true,
   credentials: true
 }
